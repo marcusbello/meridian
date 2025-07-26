@@ -1,0 +1,70 @@
+{{ define "login.html" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ .Title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="/static/bootstrap-5.3/css/bootstrap.min.css" rel="stylesheet">
+  <script src="/static/vue/vue.global.js"></script>
+</head>
+<body class="bg-light">
+
+  <div id="loginApp" class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card p-4 shadow w-100" style="max-width: 400px;">
+      <h2 class="text-center mb-4">Login</h2>
+
+      <form @submit.prevent="login">
+        <div class="mb-3">
+          <input v-model="email" type="email" class="form-control" placeholder="Email" required>
+        </div>
+        <div class="mb-3">
+          <input v-model="password" type="password" class="form-control" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+      </form>
+
+      <div v-if="error" class="alert alert-danger mt-3 py-2 text-center" role="alert">
+        [[ error ]]
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      delimiters: ['[[', ']]'],
+      data() {
+        return {
+          email: "",
+          password: "",
+          error: ""
+        };
+      },
+      methods: {
+        async login() {
+          try {
+            const res = await fetch("/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: this.email, password: this.password }),
+              credentials: "include" // send cookie if using JWT in cookie
+            });
+            if (!res.ok) {
+              const err = await res.text();
+              throw new Error(err);
+            }
+            window.location.href = "/dashboard";
+          } catch (err) {
+            this.error = err.message || "Login failed";
+          }
+        }
+      }
+    }).mount("#loginApp");
+  </script>
+
+  <script src="/static/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{{ end }}

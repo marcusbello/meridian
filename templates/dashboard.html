@@ -1,0 +1,90 @@
+{{ define "dashboard.html" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ .Title }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="/static/bootstrap-5.3/css/bootstrap.min.css" rel="stylesheet">
+  <script src="/static/vue/vue.global.js"></script>
+</head>
+<body class="bg-light">
+
+  <div id="app" class="container py-5">
+    <div class="card shadow p-4">
+      <h1 class="card-title display-5 mb-3">Welcome, [[ username ]] 👋</h1>
+      <p class="card-text fs-5 text-muted">{{ .Data.Message}}</p>
+
+      <hr>
+      <h2 class="mb-4">Your Listings</h2>
+      <div v-if="listings.length === 0" class="alert alert-info" role="alert">
+        No listings found. <a href="/add-listing" class="alert-link">Create a new listing</a>.
+      </div>
+
+      <h2 class="mb-4">My Listings</h2>
+
+      <table class="table table-hover align-middle shadow-sm rounded">
+        <thead class="table-light">
+          <tr>
+            <th></th>
+            <th>Title</th>
+            <th>Price</th>
+            <th>Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="listing in listings" :key="listing.id" class="table-row">
+            <td class="text-nowrap">
+              <button class="btn btn-sm btn-outline-secondary me-1" @click="edit(listing)">
+                📝
+              </button>
+              <button class="btn btn-sm btn-outline-danger" @click="remove(listing.id)">
+                🗑️
+              </button>
+            </td>
+            <td>[[ listing.title ]]</td>
+            <td>₦[[ listing.price.toLocaleString() ]]</td>
+            <td>[[ listing.category ]]</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div v-if="listings.length > 0" class="text-center">
+        <a href="/add-listing" class="btn btn-success">Add New Listing</a>
+      </div>
+
+      <!-- Request Counter -->
+      <div class="my-4">
+        <h4 class="mb-3">Request Counter</h4>
+        <p class="lead">Requests made: <strong>[[ requestCount ]]</strong></p>
+        <button class="btn btn-outline-primary" @click="simulateRequest">Make Request</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      delimiters: ['[[', ']]'],
+      data() {
+        return {
+          username: "{{ .Username }}",
+          requestCount: 0,
+          listings: {{ .Data.Listings | toJson }},
+          message: "{{ .Data.Message }}"
+        };
+      },
+      methods: {
+        simulateRequest() {
+          // Simulate a dummy fetch or request
+          this.requestCount++;
+        }
+      }
+    }).mount("#app");
+  </script>
+
+  <script src="/static/bootstrap-5.3/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+{{ end }}
